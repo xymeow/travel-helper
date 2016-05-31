@@ -1,0 +1,387 @@
+//
+   Created by xymeow on 16/5/30.
+doctype html
+html
+    head
+        title 管理员系统
+        //link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/materialize.min.css')
+        script(type="text/javascript", src='/javascripts/jquery-2.2.0.min.js')
+            //script(type="text/javascript", src='/javascripts/hammer.min.js')
+        script(type="text/javascript", src='/javascripts/materialize.min.js')
+        script(type="text/javascript", src='/javascripts/springy.js')
+        script(type="text/javascript", src='/javascripts/springyui.js')
+    body
+        div.navbar-fixed
+            nav.blue.darken-1(role="navigation")
+                div.nav-wrapper.container
+                    a#logo-container(href='/').brand-logo Logo
+                    ul.right.hide-on-med-and-down
+                        li
+                            a(href="/logout") 退出
+
+        div.container
+            div.row(style="margin-top: 30px;")
+                div.col.s12
+                    h4.center 管理系统
+                    ul.tabs.spinner-blue(style="margin-top: 30px;")
+                        li.tab.col.s2
+                            a(href="#flight").blue-text.darken-1 航班信息
+                        li.tab.col.s2
+                            a(href="#hotel").blue-text.darken-1 旅馆信息
+                        li.tab.col.s2
+                            a(href="#taxi").blue-text.darken-1 的士信息
+                        li.tab.col.s2
+                            a(href="#user").blue-text.darken-1 用户信息
+                        li.tab.col.s2
+                            a(href="#resvs").blue-text.darken-1 当前预订信息
+                        li.tab.col.s2
+                            a(href="#route").blue-text.darken-1 当前路线信息
+                div#flight.col.s12.center
+                    table
+                        thead
+                            tr
+                                th(data-field="flightNum") 航班号
+                                th(data-field="price") 价格
+                                th(data-field="numSeat") 座位数
+                                th(data-field="numAvail") 剩余座位数
+                                th(data-field="fromCity") 起始城市
+                                th(data-field="arivCity") 到达城市
+                                th(data-field="op") 操作
+                        tbody#flight_tab
+                    a#newflight.btn.blue.darken-1.center.dropdown-button 增加新航班
+
+                div#hotel.col.s12.center
+                    table
+                        thead
+                            tr
+                                th(data-field="location_hotel") 位置
+                                th(data-field="price_hotel") 价格
+                                th(data-field="numRoom") 房间数
+                                th(data-field="numRoomAvail") 剩余房间数
+                                th(data-field="op_hotel") 操作
+                        tbody#hotel_tab
+                    a#newroom.btn.blue.darken-1.center 增加新旅馆
+                div#taxi.col.s12.center
+                    table
+                        thead
+                            tr
+                                th(data-field="location_taxi") 位置
+                                th(data-field="price_taxi") 价格
+                                th(data-field="numCars") 的士数
+                                th(data-field="numCarsAvail") 可用的士数
+                                th(data-field="op_taxi") 操作
+                        tbody#taxi_tab
+                    a#newtaxi.btn.blue.darken-1.center 增加新的士
+                div#user.col.s12
+                    table
+                        thead
+                            tr
+                                th(data-field="location_taxi") 用户名
+
+                                th(data-field="numCars") 预订航班数
+                                th(data-field="numCarsAvail") 预订房间数
+                                th(data-field="op_taxi") 预订的士数
+                        tbody#user_tab
+                div#resvs.col.s12
+                    table
+                        thead
+                            tr
+                                th(data-field="location_taxi") key
+                                th(data-field="price_taxi") 价格
+                                th(data-field="numCars") 预订人
+                                th(data-field="numCarsAvail") 预订种类
+                        tbody#resv_tab
+                div#route.col.s12
+                    canvas#allroute(width="640", height="480")
+        div#newflightmodal.modal(style="width:300px;")
+            div.modal-content
+                h5 增加航班:
+                div.input-field
+                    input(type='text')#nflightnum
+                    label(for='nflightnum') 航班号
+                div.input-field
+                    input(type='text')#nprice
+                    label(for='nprice') 价格
+                div.input-field
+                    input(type='text')#nfrom
+                    label(for='nfrom') 出发城市
+                div.input-field
+                    input(type='text')#nariv
+                    label(for='nariv') 到达城市
+                div.input-field
+                    input(type='text')#nseat
+                    label(for='nseat') 座位数
+                div.modal-footer
+                    a(href="#")#fdone.modal-action.modal-close.waves-effect.btn-flat 是的
+                    a(href="#").modal-action.modal-close.waves-effect.btn-flat 不是
+        div#newroommodal.modal(style="width:300px;")
+            div.modal-content
+                h5 增加旅馆:
+                div.input-field
+                    input(type='text')#rlocation
+                    label(for='rlocation') 地址
+                div.input-field
+                    input(type='text')#rprice
+                    label(for='rprice') 价格
+                div.input-field
+                    input(type='text')#rnum
+                    label(for='rnum') 房间数
+                div.modal-footer
+                    a(href="#")#rdone.modal-action.modal-close.waves-effect.btn-flat 是的
+                    a(href="#").modal-action.modal-close.waves-effect.btn-flat 不是
+        div#newcarmodal.modal(style="width:300px;")
+            div.modal-content
+                h5 增加出租信息:
+                div.input-field
+                    input(type='text')#clocation
+                    label(for='rlocation') 城市
+                div.input-field
+                    input(type='text')#cprice
+                    label(for='rprice') 价格
+                div.input-field
+                    input(type='text')#cnum
+                    label(for='rnum') 车辆数
+                div.modal-footer
+                    a(href="#")#cdone.modal-action.modal-close.waves-effect.btn-flat 是的
+                    a(href="#").modal-action.modal-close.waves-effect.btn-flat 不是
+        div#updateflightmodal.modal(style="width:300px;")
+            div.modal-content
+                h5 更新航班信息:
+                div.input-field
+                    h6#uflightnum
+                div.input-field
+                    input(type='text')#uprice
+                    label(for='uprice') 价格
+                div.input-field
+                    input(type='text')#ufrom
+                    label(for='ufrom') 出发城市
+                div.input-field
+                    input(type='text')#uariv
+                    label(for='uariv') 到达城市
+                div.input-field
+                    input(type='text')#useat
+                    label(for='useat') 座位数
+                div.modal-footer
+                    a(href="#")#ufdone.modal-action.modal-close.waves-effect.btn-flat 是的
+                    a(href="#").modal-action.modal-close.waves-effect.btn-flat 不是
+        div#message.modal(style="width: 300px;")
+            div.modal-content
+                p#msg
+            div.modal-footer
+                a(href="#").modal-action.modal-close.waves-effect.btn-flat 知道了
+        script.
+            var NEWLINE = {
+                'newFlight': function (json) {
+                    var disabled = "";
+                    var href = "javascript:delinfo(\""+json.flightNum+"\", 0)";
+                    return "<tr><td>" + json.flightNum + "</td><td>" + json.price + "</td><td>" + json.numSeats + "</td><td>"
+                            + json.numAvail + "</td><td>" + json.fromCity + "</td><td>" + json.arivCity + "</td><td>" +
+                            "<a class='btn waves-effect waves-light blue darken-1' style='margin-right: 10px;'" +
+                            " href='javascript:update({num: \"" + json.flightNum + "\", price: " + json.price + ", seat: " +
+                            json.numSeats + ",from:\"" + json.fromCity + "\", ariv:\"" + json.arivCity + "\"}, 0);'>更新</a>" +
+                            "<a class='btn waves-effect waves-light blue darken-1' href='"+href+"'>删除</a></td></tr>";
+                },
+                'newHotel': function (json) {
+                    var disabled = "";
+                    var href = "javascript:reserve(\"" + json.location + "\", 1);";
+                    if (json.numAvail == 0) {
+                        disabled = " disabled";
+                        href = "#";
+                    }
+                    return "<tr><td>" + json.location + "</td><td>" + json.price + "</td><td>" + json.numRooms + "</td><td>"
+                            + json.numAvail + "</td><td><a class='btn waves-effect waves-light blue darken-1' " +
+                            "style='margin-right: 10px;'>更新</a>" +
+                            "<a class='btn waves-effect waves-light blue darken-1' >删除</a></td></tr>";
+                },
+                'newUser': function (json) {
+                    return "<tr><td>" + json.Username + "</td><td>" + json.numFlights + "</td><td>"
+                            + json.numHotels + "</td><td>"+json.numCars+"</td></tr>";
+                },
+                'newResv': function (json) {
+                    return "<tr><td>" + json.resvKey + "</td><td>" + json.price + "</td><td>" + json.custName + "</td><td>"
+                            + json.resvType + "</td></tr>";
+                },
+                'newTaxi': function (json) {
+                    var disabled = "";
+                    var href = "javascript:reserve(\"" + json.location + "\", 2);";
+                    if (json.numAvail == 0) {
+                        disabled = " disabled";
+                        href = "#";
+                    }
+                    return "<tr><td>" + json.location + "</td><td>" + json.price + "</td><td>" + json.numCars + "</td><td>"
+                            + json.numAvail + "</td><td><a class='btn waves-effect waves-light blue darken-1' " +
+                            "style='margin-right: 10px;'>更新</a>" +
+                            "<a class='btn waves-effect waves-light blue darken-1' >删除</a></td></tr>";
+                }
+            };
+            var totalprice;
+            $.getJSON("/root/flights", function (json) {
+                var flightTab = document.getElementById('flight_tab');
+                var _text = '';
+                for (var i = 0; i < json.length; i++)
+                    _text += NEWLINE.newFlight(json[i]);
+                flightTab.innerHTML += _text;
+            });
+            $.getJSON("/root/hotels", function (json) {
+                var hotleTab = document.getElementById('hotel_tab');
+                var _text = '';
+                for (var i = 0; i < json.length; i++)
+                    _text += NEWLINE.newHotel(json[i]);
+                hotleTab.innerHTML += _text;
+            });
+            $.getJSON("/root/cars", function (json) {
+                var taxiTab = document.getElementById('taxi_tab');
+                var _text = '';
+                for (var i = 0; i < json.length; i++)
+                    _text += NEWLINE.newTaxi(json[i]);
+                taxiTab.innerHTML += _text;
+            });
+            $.getJSON("/root/users", function (json) {
+                var userTab = document.getElementById('user_tab');
+                var _text = '';
+                for (var i = 0; i < json.length; i++)
+                    _text += NEWLINE.newUser(json[i]);
+                userTab.innerHTML += _text;
+            });
+            $.getJSON("/root/resvs", function (json) {
+                totalprice = 0;
+                var resvTab = document.getElementById('resv_tab');
+                var _text = '';
+                for (var i = 0; i < json.length; i++) {
+                    _text += NEWLINE.newResv(json[i]);
+                    totalprice += json[i].price;
+                }
+
+                resvTab.innerHTML += _text;
+                resvTab.innerHTML += "<tr><td><b>总共收入: "+totalprice+"</b></td></tr>";
+            });
+            var edge = [];
+            var myset = new Set();
+            var graphJson;
+            $.getJSON("/root/routes", function (json) {
+
+                for (var i = 0; i < json.length; i++) {
+                    myset.add(json[i].fromCity);
+                    myset.add(json[i].arivCity);
+                    edge.push([json[i].fromCity, json[i].arivCity]);
+                }
+                var node = Array.from(myset);
+                graphJson = {
+                    "nodes": node,
+                    "edges": edge
+                };
+                jQuery(function () {
+                    var graph = new Springy.Graph();
+                    graph.loadJSON(graphJson);
+                    var springy = window.springy = jQuery('#allroute').springy({
+                        graph: graph,
+                        nodeSelected: function (node) {
+                            console.log('Node selected: ' + JSON.stringify(node.data));
+                        }
+                    });
+                });
+            });
+            $('#newflight').click(function () {
+                $('#newflightmodal').openModal();
+            })
+            $('#fdone').click(function () {
+                var num = $('#nflightnum').get(0).value;
+                var price = $('#nprice').get(0).value;
+                var ariv = $('#nariv').get(0).value;
+                var from = $('#nfrom').get(0).value;
+                var seat = $('#nseat').get(0).value;
+                $.post('/root/newflight?num='+num+'&price='+price+'&ariv='+ariv+'&from='+from+'&seat='+seat, function (json) {
+                    $('#message').openModal({
+                        ready: function () {
+                            $('#msg').get(0).innerHTML = json.msg;
+                        },
+                        complete: function () {
+                            window.location.reload(true);
+                        }
+                    })
+                });
+            });
+            $('#newroom').click(function () {
+                $('#newroommodal').openModal();
+            })
+            $('#rdone').click(function () {
+                var loc = $('#rlocation').get(0).value;
+                var price = $('#rprice').get(0).value;
+                var num = $('#rnum').get(0).value;
+                $.post('/root/newroom?loc=' + loc + '&price=' + price + '&num=' + num, function (json) {
+                    $('#message').openModal({
+                        ready: function () {
+                            $('#msg').get(0).innerHTML = json.msg;
+                        },
+                        complete: function () {
+                            window.location.reload(true);
+                        }
+                    })
+                });
+            })
+            $('#newtaxi').click(function () {
+                $('#newcarmodal').openModal();
+            })
+            $('#cdone').click(function () {
+                var loc = $('#clocation').get(0).value;
+                var price = $('#cprice').get(0).value;
+                var num = $('#cnum').get(0).value;
+                $.post('/root/newcar?loc=' + loc + '&price=' + price + '&num=' + num, function (json) {
+                    $('#message').openModal({
+                        ready: function () {
+                            $('#msg').get(0).innerHTML = json.msg;
+                        },
+                        complete: function () {
+                            window.location.reload(true);
+                        }
+                    })
+                });
+            })
+
+            function update(json, type) {
+                switch (type) {
+                    case 0:
+                        $('#updateflightmodal').openModal({
+                            ready: function () {
+                                $('#uflightnum').get(0).innerHTML = json.num;
+                                $('#uprice').get(0).value = json.price;
+                                $('#uariv').get(0).value = json.ariv;
+                                $('#ufrom').get(0).value = json.from;
+                                $('#useat').get(0).value = json.seat;
+                            }
+                        });
+                }
+            }
+            $('#ufdone').click(function () {
+                var num = $('#uflightnum').get(0).innerHTML;
+                var price = $('#uprice').get(0).value;
+                var ariv = $('#uariv').get(0).value;
+                var from = $('#ufrom').get(0).value;
+                var seat = $('#useat').get(0).value;
+                $.post('/root/updateflight?num=' + num + '&price=' + price + '&ariv=' + ariv + '&from=' + from + '&seat=' + seat, function (json) {
+                    $('#message').openModal({
+                        ready: function () {
+                            $('#msg').get(0).innerHTML = json.msg;
+                        },
+                        complete: function () {
+                            window.location.reload(true);
+                        }
+                    })
+                });
+            });
+            function delinfo(resvKey, resvType) {
+                switch (resvType) {
+                    case 0:
+                        $.post('/root/delflight?key='+resvKey, function (json) {
+                            $('#message').openModal({
+                                ready: function () {
+                                    $('#msg').get(0).innerHTML = json.msg;
+                                },
+                                complete: function () {
+                                    window.location.reload(true);
+                                }
+                            })
+                        })
+                }
+            }

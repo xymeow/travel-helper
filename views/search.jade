@@ -1,0 +1,150 @@
+//
+   Created by xymeow on 16/5/26.
+
+extends layout
+
+block content
+    div.container
+        div.row(style="margin-top: 30px;")
+            div.col.s12
+                h4.center 查询结果
+                ul.tabs.spinner-blue(style="margin-top: 30px;")
+                    li.tab.col.s4
+                        a(href="#flight").blue-text.darken-1 航班信息
+                    li.tab.col.s4
+                        a(href="#hotel").blue-text.darken-1 旅馆信息
+                    li.tab.col.s4
+                        a(href="#taxi").blue-text.darken-1 的士信息
+            div#flight.col.s12
+                table
+                    thead
+                        tr
+                            th(data-field="flightNum") 航班号
+                            th(data-field="price") 价格
+                            th(data-field="numSeat") 座位数
+                            th(data-field="numAvail") 剩余座位数
+                            th(data-field="fromCity") 起始城市
+                            th(data-field="arivCity") 到达城市
+                            th(data-field="op") 操作
+                    tbody#flight_tab
+            div#hotel.col.s12
+                table
+                    thead
+                        tr
+                            th(data-field="location_hotel") 位置
+                            th(data-field="price_hotel") 价格
+                            th(data-field="numRoom") 房间数
+                            th(data-field="numRoomAvail") 剩余房间数
+                            th(data-field="op_hotel") 操作
+                    tbody#hotel_tab
+            div#taxi.col.s12
+                table
+                    thead
+                        tr
+                            th(data-field="location_taxi") 位置
+                            th(data-field="price_taxi") 价格
+                            th(data-field="numCars") 的士数
+                            th(data-field="numCarsAvail") 可用的士数
+                            th(data-field="op_taxi") 操作
+                    tbody#taxi_tab
+    div#reserve.modal(style="width: 300px;")
+        div.modal-content
+            p 确定要预订:
+                b#key
+            div.modal-footer
+                a(href="#")#done.modal-action.modal-close.waves-effect.btn-flat 是的
+                a(href="#").modal-action.modal-close.waves-effect.btn-flat 不是
+    div#message.modal(style="width: 300px;")
+        div.modal-content
+            p#msg
+        div.modal-footer
+            a(href="#").modal-action.modal-close.waves-effect.btn-flat 知道了
+    script.
+        var NEWLINE={
+            'newFlight': function (json) {
+                var disabled = "";
+                var href = "javascript:reserve(\"" + json.flightNum + "\", 0);";
+                if (json.numAvail == 0) {
+                    disabled = " disabled";
+                    href = "#";
+                }
+                return "<tr><td>"+json.flightNum+"</td><td>"+json.price+"</td><td>"+json.numSeats+"</td><td>"
+                +json.numAvail+"</td><td>"+json.fromCity+"</td><td>"+json.arivCity+"</td><td><a class='waves-effect " +
+                "waves-light btn blue darken-1"+disabled+"' href='"+href+"'>预订</a></td></tr>";
+            },
+            'newHotel': function (json) {
+                var disabled = "";
+                var href = "javascript:reserve(\"" + json.location + "\", 1);";
+                if (json.numAvail == 0) {
+                    disabled = " disabled";
+                    href = "#";
+                }
+                return "<tr><td>" + json.location + "</td><td>" + json.price + "</td><td>" + json.numRooms + "</td><td>"
+                        + json.numAvail + "</td><td><a class='waves-effect waves-light btn blue darken-1"+disabled+"' " +
+                        "href='"+href+"'>预订</a></td></tr>";
+            },
+            'newTaxi': function (json) {
+                var disabled = "";
+                var href = "javascript:reserve(\"" + json.location + "\", 2);";
+                if (json.numAvail == 0) {
+                    disabled = " disabled";
+                    href = "#";
+                }
+                return "<tr><td>" + json.location + "</td><td>" + json.price + "</td><td>" + json.numCars + "</td><td>"
+                        + json.numAvail + "</td><td><a class='waves-effect waves-light btn blue darken-1"+disabled+"'" +
+                        "href='"+href+"'>预订</a></td></tr>";
+            }
+        };
+        $.getJSON("/search/flights", function (json) {
+            var flightTab = document.getElementById('flight_tab');
+            var _text = '';
+            for (var i = 0; i < json.length; i++)
+                _text += NEWLINE.newFlight(json[i]);
+            flightTab.innerHTML += _text;
+        });
+        $.getJSON("/search/hotels", function (json) {
+            var hotleTab = document.getElementById('hotel_tab');
+            var _text = '';
+            for (var i = 0; i < json.length; i ++)
+                _text += NEWLINE.newHotel(json[i]);
+            hotleTab.innerHTML += _text;
+        });
+        $.getJSON("/search/cars", function (json) {
+            var taxiTab = document.getElementById('taxi_tab');
+            var _text = '';
+            for (var i = 0; i < json.length; i++)
+                _text += NEWLINE.newTaxi(json[i]);
+            taxiTab.innerHTML += _text;
+        });
+        var resvKey, resvType;
+        function reserve(resKey, type) {
+            $('#key').get(0).innerHTML = resKey;
+            resvKey = resKey;
+            resvType = type;
+            $('#reserve').openModal();
+        };
+        $('#done').click(function () {
+            $.post('/users/resv?resvKey=' + resvKey + '&resvType=' + resvType, function (json) {
+                $('#message').openModal({
+                    ready: function () {
+                        $('#msg').get(0).innerHTML = json.msg;
+                    },
+                    complete: function () {
+                        window.location.reload(true);
+                        switch (resvType) {
+                            case 0:
+                                window.location.hash = 'flight';
+                                break;
+                            case 1:
+                                window.location.hash = 'hotel';
+                                break;
+                            case 2:
+                                window.location.hash = 'taxi';
+                                break;
+                        }
+                    }
+                });
+            });
+        })
+
+

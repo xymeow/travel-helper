@@ -1,0 +1,27 @@
+doctype html
+html
+  head
+    title 旅游出行小助手
+    //link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/materialize.min.css')
+    script(type="text/javascript", src='/javascripts/jquery-2.2.0.min.js')
+      //script(type="text/javascript", src='/javascripts/hammer.min.js')
+    script(type="text/javascript", src='/javascripts/materialize.min.js')
+    script(type="text/javascript", src='/javascripts/springy.js')
+    script(type="text/javascript", src='/javascripts/springyui.js')
+  body
+    div.navbar-fixed
+      nav.blue.darken-1(role="navigation")
+        div.nav-wrapper.container
+          a#logo-container(href='/').brand-logo Logo
+          ul.right.hide-on-med-and-down
+            li
+              a(href="#", data-activates="dropdown1").dropdown-button #{username}
+              ul#dropdown1.dropdown-content
+                li
+                  a(href="/users").blue-text 我的预订
+                li
+                  a(href="/logout").blue-text 注销
+    block content
+
+

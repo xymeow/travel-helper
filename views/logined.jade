@@ -1,0 +1,32 @@
+//
+   Created by xymeow on 16/5/28.
+
+extends layout
+block content
+    div.parallax-container
+        div.section.no-pad-bot
+            div.container
+                br
+                br
+                br
+                br
+                br
+                h2.center.header Travel Helper
+                div#loged
+                    p.row.center 欢迎你! #{username}
+                        //span#username
+                    div.center.row
+                        a(href="users").waves-effect.waves-light.btn.blue.darken-1 我的预订
+        div.parallax
+            img(src="/images/bg1.jpg", alt="Unsplashed background img 1",
+            style="display: block; transform: translate3d(-50%, 215px, 0px);")
+    div.container
+        div.section
+            div.row
+                br
+                div.s4.col.center
+                    a(href="search#flight").center.waves-effect.waves-light.btn-large.blue.darken-1 航班信息
+                div.s4.col.center
+                    a(href="search#hotel").center.waves-effect.waves-light.btn-large.blue.darken-1 旅馆信息
+                div.s4.col.center
+                    a(href="search#taxi").center.waves-effect.waves-light.btn-large.blue.darken-1 的士信息

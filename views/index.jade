@@ -1,0 +1,54 @@
+doctype html
+html
+  head
+    title 旅游出行小助手
+    //link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/materialize.min.css')
+    script(type="text/javascript", src='/javascripts/jquery-2.2.0.min.js')
+      //script(type="text/javascript", src='/javascripts/hammer.min.js')
+    script(type="text/javascript", src='/javascripts/materialize.min.js')
+body
+  nav.blue.darken-1(role="navigation")
+   div.nav-wrapper.container
+    a#logo-container(href='#').brand-logo Logo
+    //ul.right.hide-on-med-and-down
+    //  li slkfjlsaj
+  div.parallax-container
+    div.section.no-pad-bot
+      div.container
+        br
+        br
+        br
+        br
+        br
+        h2.center.header Travel Helper
+        div#nolog
+          p.row.center 点击开启旅程!
+          div.center.row
+            a(href="#login").waves-effect.waves-light.btn.blue.darken-1.modal-trigger start!
+    div.parallax
+      img(src="/images/bg1.jpg", alt="Unsplashed background img 1",
+      style="display: block; transform: translate3d(-50%, 215px, 0px);")
+
+  div#login.modal(style="width: 300px;")
+    div.modal-content
+      div.input-field
+        input#name(type="text", name="custName")
+        label(for="name") 请输入您的姓名
+      div.modal-footer
+        a(href="#")#done.modal-action.modal-close.waves-effect.btn-flat 完成
+  script(type="text/javascript").
+
+    $(document).ready(function () {
+      // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+
+      $('.modal-trigger').leanModal();
+      $('#done').click(function () {
+        var name = document.getElementById('name');
+        if(name.value !== '') {
+          $.post("/login?custName="+name.value);
+          window.location.href="/";
+        }
+
+      });
+    });

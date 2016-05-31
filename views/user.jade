@@ -1,0 +1,192 @@
+//
+   Created by xymeow on 16/5/26.
+
+extends layout
+block content
+    div.container
+        h5 您好, #{username}
+        div.row(style="margin-top: 30px;")
+            div.col.s12
+                h4.center 我的预订
+                ul.tabs.spinner-blue(style="margin-top: 30px;")
+                    li.tab.col.s3
+                        a(href="#flight").blue-text.darken-1 航班信息
+                    li.tab.col.s3
+                        a(href="#hotel").blue-text.darken-1 旅馆信息
+                    li.tab.col.s3
+                        a(href="#taxi").blue-text.darken-1 的士信息
+                    li.tab.col.s3
+                        a(href="#travel").blue-text.darken-1 我的路线
+            div#flight.col.s12
+                table
+                    thead
+                        tr
+                            th(data-field="flightNum") 航班号
+                            th(data-field="price") 价格
+                            th(data-field="num") 预订数量
+                            th(data-field="fromCity") 起始城市
+                            th(data-field="arivCity") 到达城市
+                            th(data-field="op") 操作
+                    tbody#flight_tab
+            div#hotel.col.s12
+                table
+                    thead
+                        tr
+                            th(data-field="location_hotel") 位置
+                            th(data-field="price_hotel") 价格
+                            th(data-field="num") 预订数量
+                            th(data-field="op_hotel") 操作
+                    tbody#hotel_tab
+            div#taxi.col.s12
+                table
+                    thead
+                        tr
+                            th(data-field="location_taxi") 位置
+                            th(data-field="price_taxi") 价格
+                            th(data-field="num") 预订数量
+                            th(data-field="op_taxi") 操作
+                    tbody#taxi_tab
+            div#travel.col.s12.center
+                div.card#card
+                    div.card-content
+                        div#info.white-text
+                canvas#route(width="640", height="480")
+    div#message.modal(style="width: 300px;")
+        div.modal-content
+            p#msg
+        div.modal-footer
+            a(href="#").modal-action.modal-close.waves-effect.btn-flat 知道了
+    script(type="text/javascript").
+        var NEWLINE = {
+            'newFlight': function (json) {
+                return "<tr><td>" + json.flightNum + "</td><td>" + json.price + "</td><td>" + json.resNum+"</td><td>"
+                        + json.fromCity + "</td><td>" + json.arivCity + "</td><td><a class='waves-effect " +
+                        "waves-light btn blue darken-1' " +
+                        "href='javascript:cancel(\"" + json.flightNum + "\", 0);'>取消</a></td></tr>";
+            },
+            'newHotel': function (json) {
+                return "<tr><td>" + json.location + "</td><td>" + json.price + "</td><td>" + json.resNum +
+                        "</td><td><a class='waves-effect waves-light btn blue darken-1' " +
+                        "href='javascript:cancel(\"" + json.location + "\", 1);'>取消</a></td></tr>";
+            },
+            'newTaxi': function (json) {
+                return "<tr><td>" + json.location + "</td><td>" + json.price + "</td><td>" + json.resNum +
+                        "</td><td><a class='waves-effect waves-light btn blue darken-1' " +
+                        "href='javascript:cancel(\"" + json.location + "\", 2);'>取消</a></td></tr>";
+            }
+        };
+        var flightprice, hotelprice, carprice;
+        var fnum;
+        $.getJSON("/users/flights", function (json) {
+            var flightTab = document.getElementById('flight_tab');
+            var _text = '';
+            flightprice = 0;
+            fnum = 0;
+            for (var i = 0; i < json.length; i++) {
+                _text += NEWLINE.newFlight(json[i]);
+                flightprice += json[i].price;
+                fnum ++;
+            }
+
+            flightTab.innerHTML += _text;
+            flightTab.innerHTML += "<tr><td><b>总共价格: "+flightprice+"</b></td></tr>"
+        });
+        $.getJSON("/users/hotels", function (json) {
+            var hotleTab = document.getElementById('hotel_tab');
+            var _text = '';
+            hotelprice = 0;
+            for (var i = 0; i < json.length; i++) {
+                _text += NEWLINE.newHotel(json[i]);
+                hotelprice += json[i].price;
+            }
+
+            hotleTab.innerHTML += _text;
+            hotleTab.innerHTML += "<tr><td><b>总共价格: "+hotelprice+"</b></td></tr>"
+        });
+        $.getJSON("/users/cars", function (json) {
+            var taxiTab = document.getElementById('taxi_tab');
+            var _text = '';
+            carprice = 0;
+            for (var i = 0; i < json.length; i++) {
+                _text += NEWLINE.newTaxi(json[i]);
+                carprice += json[i].price;
+            }
+
+            taxiTab.innerHTML += _text;
+            taxiTab.innerHTML += "<tr><td><b>总共价格: "+carprice+"</b></td></tr>"
+        });
+        $.getJSON("/users/routeIntergrity", function (json) {
+            var info = $('#info');
+            var card = $('#card');
+            if (json.length != 0) {
+                info.get(0).innerHTML = '<h5>您的预订路线不完整</h5> <a href="/search#flight" class="waves-effect' +
+                        ' waves-light btn blue darken-1">去预订</a>';
+                card.attr('class', 'red lighten-3 center-align card');
+            }
+            else {
+                if (fnum === 0) {
+                    info.get(0).innerHTML = '<h5>您还没有预订航班</h5> <a href="/search#flight" class="waves-effect' +
+                            ' waves-light btn blue darken-1">去预订</a>';
+                    card.attr('class', 'red lighten-3 center-align card');
+                }
+                else {
+                    info.get(0).innerHTML = '<h5>您的预订路线完整, 祝您旅途愉快!</h5>';
+                    card.attr('class', 'green lighten-3 center-align card');
+                }
+
+            }
+        });
+        var edge = [];
+        var myset = new Set();
+        var graphJson;
+        $.getJSON("/users/route", function (json) {
+
+            for (var i = 0; i < json.length; i ++) {
+                myset.add(json[i].fromCity);
+                myset.add(json[i].arivCity);
+                edge.push([json[i].fromCity, json[i].arivCity]);
+            }
+            var node = Array.from(myset);
+            graphJson = {
+                "nodes": node,
+                "edges": edge
+            };
+            jQuery(function () {
+                var graph = new Springy.Graph();
+                graph.loadJSON(graphJson);
+                var springy = window.springy = jQuery('#route').springy({
+                    graph: graph,
+                    nodeSelected: function (node) {
+                        console.log('Node selected: ' + JSON.stringify(node.data));
+                    }
+                });
+            });
+        });
+        //for (var item in myset) alert(item);
+
+
+
+
+        function cancel (resvKey, resvType) {
+            $.post('/users/cancel?resvKey=' + resvKey + '&resvType=' + resvType, function (json) {
+                $('#message').openModal({
+                    ready: function () {
+                        $('#msg').get(0).innerHTML = json.msg;
+                    },
+                    complete: function () {
+                        window.location.reload(true);
+                        switch (type) {
+                            case 0:
+                                window.location.hash = 'flight';
+                                break;
+                            case 1:
+                                window.location.hash = 'hotel';
+                                break;
+                            case 2:
+                                window.location.hash = 'taxi';
+                                break;
+                        }
+                    }
+                });
+            });
+        }
